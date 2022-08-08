@@ -13,7 +13,7 @@ attendance_list = pd.DataFrame()
 
 if not myList:
     print("\"Attendance List\" folder is empty. Please add images to continue")
-    input("Press Any Key to Close")  # stop cmd close
+    input("Press Any Key to Close") 
     raise SystemExit
 
 print("----------Loading data----------")
@@ -55,4 +55,4 @@ wb.save('SOURCE.xlsx')
 print("Source Sheet Created")
 
 print("Encoding Successful")
-input("Press Any Key to Close")  # stop cmd close
+input("Press Any Key to Close")  
