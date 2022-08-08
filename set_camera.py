@@ -41,4 +41,4 @@ cap.release()
 cv2.destroyAllWindows()
 
 print("Camera Set Successful")
-input("Press Any Key to Close")  # stop cmd close
+input("Press Any Key to Close")  
