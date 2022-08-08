@@ -106,7 +106,7 @@ LOG_SHEET = ws
 IN_COLUMN = 2
 OUT_COLUMN = 3
 
-cap = cv2.VideoCapture(CAMERA_NUMBER, cv2.CAP_DSHOW)  # parameter sets correct camera
+cap = cv2.VideoCapture(CAMERA_NUMBER, cv2.CAP_DSHOW)  
 
 history = []
 log = []
@@ -118,11 +118,6 @@ def time_add_name():
         TIME_SHEET.cell(row=row, column=IN_COLUMN).value = time
         history.append(f"{time} {TIME_SHEET.cell(row=row, column=1).value} sign in")
         wb2.save(path2)
-
-    # if TIME_SHEET.cell(row=row, column=OUT_COLUMN).value is None:
-    #     time = datetime.now().strftime("%I:%M:%S %p")
-    #     TIME_SHEET.cell(row=row, column=OUT_COLUMN).value = time
-    #     wb2.save(path2)
 
     if TIME_SHEET.cell(row=row, column=OUT_COLUMN).value is None:
         sec_elapsed = datetime.strptime(TIME_SHEET.cell(row=row, column=IN_COLUMN).value, "%I:%M:%S %p") - datetime.now()
@@ -155,44 +150,42 @@ def print_list(my_list):
 run_program = True
 while run_program:
     success, img = cap.read()
-    imgS = cv2.resize(img, (0, 0), None, 0.25, 0.25)  # small image to speed up
-    imgS = cv2.cvtColor(imgS, cv2.COLOR_BGR2RGB)  # convert to rgb
+    imgS = cv2.resize(img, (0, 0), None, 0.25, 0.25) 
+    imgS = cv2.cvtColor(imgS, cv2.COLOR_BGR2RGB)  
 
-    faceCurrFrame = face_recognition.face_locations(imgS)  # get face coordinates
-    encodesCurrFrame = face_recognition.face_encodings(imgS, faceCurrFrame)  # encode faces
+    faceCurrFrame = face_recognition.face_locations(imgS) 
+    encodesCurrFrame = face_recognition.face_encodings(imgS, faceCurrFrame) 
 
     for encodeFace, faceLoc in zip(encodesCurrFrame, faceCurrFrame):
-        matches = face_recognition.compare_faces(encode_list_known, encodeFace)  # compares face from cam with known faces
-        faceDis = face_recognition.face_distance(encode_list_known, encodeFace)  # finds face distance between cam and known
-        # print(faceDis)
-        matchIndex = np.argmin(faceDis)  # get index of minimum in faceDis
+        matches = face_recognition.compare_faces(encode_list_known, encodeFace)
+        faceDis = face_recognition.face_distance(encode_list_known, encodeFace) 
+        matchIndex = np.argmin(faceDis) 
 
-        if matches[matchIndex]:  # if minimum is true
+        if matches[matchIndex]:
             name = people_names[matchIndex]
             row = matchIndex + 2
             time_add_name()
             log_add_name()
 
-            name = name.upper()  # name to upper case
-            # print(name)
-            y1, x2, y2, x1 = faceLoc  # set coordinates of rectangle
-            y1, x2, y2, x1 = y1 * 4, x2 * 4, y2 * 4, x1 * 4  # scale rectangle back up
-            cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)  # put rectangle on webcam image
-            cv2.rectangle(img, (x1, y2 - 35), (x2, y2), (0, 255, 0), cv2.FILLED)  # create solid area at bottom of rectangle
-            cv2.putText(img, name, (x1 + 6, y2 - 6), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)  # put name in area
+            name = name.upper() 
+            y1, x2, y2, x1 = faceLoc  
+            y1, x2, y2, x1 = y1 * 4, x2 * 4, y2 * 4, x1 * 4  
+            cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)  
+            cv2.rectangle(img, (x1, y2 - 35), (x2, y2), (0, 255, 0), cv2.FILLED)
+            cv2.putText(img, name, (x1 + 6, y2 - 6), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2) 
 
     cv2.namedWindow("Webcam", cv2.WINDOW_NORMAL)
     width = img.shape[1] * WINDOW_SCALE_FACTOR
     height = img.shape[0] * WINDOW_SCALE_FACTOR
     cv2.resizeWindow("Webcam", width, height)
-    cv2.imshow("Webcam", img)  # display image
+    cv2.imshow("Webcam", img)  
 
     if keyboard.is_pressed('q'):
         cmd = input("Enter command or -1 to exit command terminal: ")
         print()
         while cmd != '-1':
 
-            if cmd == 'exit':  # e for exit
+            if cmd == 'exit': 
                 history_file = open(f"{sheet_name}.txt", 'w')
                 for line in history:
                     history_file.write(line)
@@ -202,23 +195,7 @@ while run_program:
                 run_program = False
                 break
 
-            elif cmd == 'manual':  # m for manual input
-
-                # repeat = True
-                # while repeat:
-                #     i_name = input("Enter Your Name: ")
-                #     i_name = i_name.title()
-                #     if i_name == '-1':
-                #         break
-                #     try:
-                #         row = people_names.index(i_name) + 2
-                #         time_add_name()
-                #         log_add_name()
-                #         print("Name Added")
-                #         repeat = False
-                #     except ValueError:
-                #         print("Invalid Name. Try Again")
-
+            elif cmd == 'm': 
                 i_name = input("Enter Your Name: ")
                 i_name = i_name.title()
                 try:
@@ -227,7 +204,6 @@ while run_program:
                     log_add_name()
 
                 except ValueError:
-                    # print("Invalid Name. Try Again")
                     i_name = '*' + i_name
                     row = TIME_SHEET.max_row + 1
                     TIME_SHEET.cell(row=row, column=1).value = i_name
@@ -237,10 +213,10 @@ while run_program:
 
                 print("Name Added")
 
-            elif cmd == 'h':  # h for history
+            elif cmd == 'h':  
                 print_list(history)
 
-            elif cmd == 'l':  # l for log
+            elif cmd == 'l': 
                 print_list(log)
 
             else:
