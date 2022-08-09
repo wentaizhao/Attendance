@@ -1,0 +1,6 @@
+Camera number: 1
+Enable terminal (must be SINGLE key): q
+Exit: exit
+Manual input: manual
+Get history: history
+Get log: log
