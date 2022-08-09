@@ -33,12 +33,16 @@ number = input("Type the camera number: ")
 while is_integer(number) is False:
     print("Invalid input. Try again.")
     number = input("Type the camera number: ")
-file = open("data.txt", 'w')
-file.write(f"Camera Number = {number}")
-file.close()
+
+with open('data.txt', 'r') as file:
+    lines = file.readlines()
+    lines[0] = f"Camera number: {number}\n"
+
+with open('data.txt', 'w') as file:
+    file.writelines(lines)
 
 cap.release()
 cv2.destroyAllWindows()
 
 print("Camera Set Successful")
-input("Press Any Key to Close")  
+input("Press Any Key to Close")  # stop cmd close
