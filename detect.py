@@ -92,13 +92,26 @@ wb.save("Attendance Log.xlsx")
 
 
 try:
-    file = open("data.txt", 'r')
-    CAMERA_NUMBER = int(file.readline()[-1])
+    with open("data.txt", 'r') as file:
+        lines = file.readlines()
 except FileNotFoundError:
-    "\"data.txt\" not found. Please run \"set_camera.exe.\""
+    "\"data.txt\" not found."
     input("Press Any Key to Close")
     raise SystemExit
 
+constants = ["Camera number: ", "Enable terminal (must be SINGLE key): ", "Exit: ", "Manual input: ", "Get history: ", "Get log: "]
+
+
+def get_cmd(num):
+    return (lines[num][len(constants[num]):]).strip()
+
+
+CAMERA_NUMBER = int(get_cmd(0))
+ENABLE_TERMINAL = get_cmd(1)
+EXIT_KEY = get_cmd(2)
+MANUAL_KEY = get_cmd(3)
+HISTORY_KEY = get_cmd(4)
+LOG_KEY = get_cmd(5)
 
 WINDOW_SCALE_FACTOR = 2
 TIME_SHEET = ws2
@@ -106,10 +119,10 @@ LOG_SHEET = ws
 IN_COLUMN = 2
 OUT_COLUMN = 3
 
-cap = cv2.VideoCapture(CAMERA_NUMBER, cv2.CAP_DSHOW)  
-
 history = []
 log = []
+
+cap = cv2.VideoCapture(CAMERA_NUMBER, cv2.CAP_DSHOW)  # parameter sets correct camera
 
 
 def time_add_name():
@@ -139,6 +152,7 @@ def log_add_name():
             LOG_SHEET.cell(row=row, column=LOG_SHEET.max_column).value is None:
         LOG_SHEET.cell(row=row, column=LOG_SHEET.max_column).value = 1
         log.append(TIME_SHEET.cell(row=row, column=1).value)
+        log.sort()
         wb.save("Attendance Log.xlsx")
 
 
@@ -150,29 +164,29 @@ def print_list(my_list):
 run_program = True
 while run_program:
     success, img = cap.read()
-    imgS = cv2.resize(img, (0, 0), None, 0.25, 0.25) 
-    imgS = cv2.cvtColor(imgS, cv2.COLOR_BGR2RGB)  
+    imgS = cv2.resize(img, (0, 0), None, 0.25, 0.25)  # small image to speed up
+    imgS = cv2.cvtColor(imgS, cv2.COLOR_BGR2RGB)  # convert to rgb
 
-    faceCurrFrame = face_recognition.face_locations(imgS) 
-    encodesCurrFrame = face_recognition.face_encodings(imgS, faceCurrFrame) 
+    faceCurrFrame = face_recognition.face_locations(imgS)  # get face coordinates
+    encodesCurrFrame = face_recognition.face_encodings(imgS, faceCurrFrame)  # encode faces
 
     for encodeFace, faceLoc in zip(encodesCurrFrame, faceCurrFrame):
-        matches = face_recognition.compare_faces(encode_list_known, encodeFace)
-        faceDis = face_recognition.face_distance(encode_list_known, encodeFace) 
-        matchIndex = np.argmin(faceDis) 
+        matches = face_recognition.compare_faces(encode_list_known, encodeFace)  # compares face from cam with known faces
+        faceDis = face_recognition.face_distance(encode_list_known, encodeFace)  # finds face distance between cam and known
+        matchIndex = np.argmin(faceDis)  # get index of minimum in faceDis
 
-        if matches[matchIndex]:
+        if matches[matchIndex]:  # if minimum is true
             name = people_names[matchIndex]
             row = matchIndex + 2
             time_add_name()
             log_add_name()
 
-            name = name.upper() 
-            y1, x2, y2, x1 = faceLoc  
-            y1, x2, y2, x1 = y1 * 4, x2 * 4, y2 * 4, x1 * 4  
-            cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)  
-            cv2.rectangle(img, (x1, y2 - 35), (x2, y2), (0, 255, 0), cv2.FILLED)
-            cv2.putText(img, name, (x1 + 6, y2 - 6), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2) 
+            name = name.upper()  
+            y1, x2, y2, x1 = faceLoc  # set coordinates of rectangle
+            y1, x2, y2, x1 = y1 * 4, x2 * 4, y2 * 4, x1 * 4  # scale rectangle back up
+            cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)  # put rectangle on webcam image
+            cv2.rectangle(img, (x1, y2 - 35), (x2, y2), (0, 255, 0), cv2.FILLED)  # create solid area at bottom of rectangle
+            cv2.putText(img, name, (x1 + 6, y2 - 6), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)  # put name in area
 
     cv2.namedWindow("Webcam", cv2.WINDOW_NORMAL)
     width = img.shape[1] * WINDOW_SCALE_FACTOR
@@ -180,22 +194,21 @@ while run_program:
     cv2.resizeWindow("Webcam", width, height)
     cv2.imshow("Webcam", img)  
 
-    if keyboard.is_pressed('q'):
+    if keyboard.is_pressed(ENABLE_TERMINAL):
         cmd = input("Enter command or -1 to exit command terminal: ")
         print()
         while cmd != '-1':
 
-            if cmd == 'exit': 
-                history_file = open(f"{sheet_name}.txt", 'w')
-                for line in history:
-                    history_file.write(line)
-                    history_file.write('\n')
-                history_file.close()
+            if cmd == EXIT_KEY:
+                with open(f"{sheet_name}.txt", 'w') as history_file:
+                    for line in history:
+                        history_file.write(line)
+                        history_file.write('\n')
                 os.rename(f"{sheet_name}.txt", f"History\\{sheet_name}.txt")
                 run_program = False
                 break
 
-            elif cmd == 'm': 
+            elif cmd == MANUAL_KEY:
                 i_name = input("Enter Your Name: ")
                 i_name = i_name.title()
                 try:
@@ -203,7 +216,7 @@ while run_program:
                     time_add_name()
                     log_add_name()
 
-                except ValueError:
+                except ValueError:                  
                     i_name = '*' + i_name
                     row = TIME_SHEET.max_row + 1
                     TIME_SHEET.cell(row=row, column=1).value = i_name
@@ -213,17 +226,17 @@ while run_program:
 
                 print("Name Added")
 
-            elif cmd == 'h':  
+            elif cmd == HISTORY_KEY:  
                 print_list(history)
 
-            elif cmd == 'l': 
+            elif cmd == LOG_KEY:  
                 print_list(log)
 
             else:
                 print("Invalid Input. Try Again")
 
             print()
-            cmd = input("Enter command or -1 to exit: ")
+            cmd = input("Enter command or -1 to exit command terminal: ")
             print()
 
         print("Exiting command terminal")
@@ -235,5 +248,6 @@ print("Exiting program")
 cap.release()
 cv2.destroyAllWindows()
 input("Press Any Key to Close")
+
 
 
