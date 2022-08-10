@@ -1,4 +1,4 @@
-Camera number: 1
+Camera number: 0
 Enable terminal (must be SINGLE key): q
 Exit: exit
 Manual input: manual
