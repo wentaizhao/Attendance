@@ -1,18 +1,6 @@
 # Attendance
 
-_This program also used code from [this](https://www.youtube.com/watch?v=sz25xxF_AVE) video as inspiration._
-
-## System Requirements
-<table>
-  <tr>
-    <th align="left", width="200">Operating System</th>
-    <td width="200">Windows</td>
-  </tr>
-  <tr>
-    <th align="left">Additional Software</th>
-    <td>Microsoft Excel</td>
-  </tr>
-</table>
+_This program used code from [this](https://www.youtube.com/watch?v=sz25xxF_AVE) video as inspiration. Windows and Excel are required to run this program_
 
 ## Files and Folders
 ### Required 
