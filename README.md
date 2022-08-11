@@ -1,4 +1,4 @@
-# Attendance
+# Attendance Program Instructions
 
 _This program used code from [this](https://www.youtube.com/watch?v=sz25xxF_AVE) video as inspiration. Windows and Excel are required to run this program_
 
