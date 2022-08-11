@@ -235,7 +235,7 @@ while run_program:
     encodesCurrFrame = face_recognition.face_encodings(imgS, faceCurrFrame)  # encode faces
 
     for encodeFace, faceLoc in zip(encodesCurrFrame, faceCurrFrame):
-        matches = face_recognition.compare_faces(encode_list_known, encodeFace)  # compares face from cam with known faces
+        matches = face_recognition.compare_faces(encode_list_known, encodeFace, 0.4)  # compares face from cam with known faces
         faceDis = face_recognition.face_distance(encode_list_known, encodeFace)  # finds face distance between cam and known
         matchIndex = np.argmin(faceDis)  # get index of minimum in faceDis
 
